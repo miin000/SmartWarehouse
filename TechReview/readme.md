@@ -1,5 +1,3 @@
-# FlashNoter Project
-
 # Technologies
 
 ## Laravel framework
