@@ -108,6 +108,35 @@ Sau khi migration và seeding thành công, Controller lấy dữ liệu từ da
 View hiển thị dữ liệu trên giao diện HTML.
 
 
+##### 2.2. Views:
+
+Khái niệm về Views:
+Views là các Blade templates được sử dụng để tạo HTML hiển thị cho người dùng.
+Blade là công cụ đơn giản, mạnh mẽ giúp tạo các trang web động.
+
+Sử dụng Views trong Laravel:
+Để sử dụng View, bạn cần trả về nó từ phương thức trong Controller.
+```
+return view('user.profile', ['user' => $user]);
+```
+Tham số đầu tiên (```user.profile```): Đường dẫn đến file View trong thư mục ```resources/views/user/profile.blade.php```.
+Tham số thứ hai: Mảng dữ liệu truyền vào View, ở đây là biến ```user```.
+
+Cấu trúc thư mục của Views:
+Views nằm trong thư mục resources/views.
+Ví dụ:
+Thư mục: ```resources/views/user/```.
+File: ```profile.blade.php```.
+
+Kết nối giữa Controller và View:
+Controller: Truy xuất dữ liệu từ database và truyền vào View.
+View: Nhận dữ liệu và hiển thị nội dung.
+Laravel tự động ánh xạ biến dữ liệu trong Controller vào View, ví dụ: Biến ```user``` được truyền và truy cập như một biến trong Blade.
+
+Ví dụ thực tế:
+View ```profile.blade.php``` hiển thị tên người dùng được truy vấn từ database.
+Có thể chỉnh sửa View để thêm thẻ HTML như ```<h1>``` để nội dung hiển thị nổi bật hơn.
+
 ### MVC
 
 ### MySQL/SQL/postgresSQL/no-sql Database (Firebase, Mongo DB)
