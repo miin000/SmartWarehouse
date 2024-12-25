@@ -107,6 +107,7 @@ Chạy và kiểm tra ứng dụng:
 Sau khi migration và seeding thành công, Controller lấy dữ liệu từ database và truyền đến View.
 View hiển thị dữ liệu trên giao diện HTML.
 
+
 ### MVC
 
 ### MySQL/SQL/postgresSQL/no-sql Database (Firebase, Mongo DB)
