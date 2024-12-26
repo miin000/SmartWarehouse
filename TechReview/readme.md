@@ -1,13 +1,12 @@
 # Technologies
 
 ## Laravel framework
-### Laravel basic
+### Laravel basic:
 #### 1. Routing trong Laravel
 Routing là gì?
 Routing là quá trình khớp yêu cầu (request) đến một đoạn mã cụ thể trong ứng dụng. Laravel cung cấp một hệ thống routing đơn giản và mạnh mẽ, cho phép bạn xác định cách ứng dụng phản hồi các yêu cầu khác nhau.
 
 Cách định nghĩa route trong Laravel:
-
 Class Route: Dùng để khai báo các route.
 Phương thức GET: Được sử dụng để xử lý các yêu cầu HTTP GET.
 Ví dụ:
@@ -31,7 +30,7 @@ Route::get('/user', function () {
 Chạy server bằng Artisan:
 Dùng lệnh php artisan serve để khởi chạy server. Mặc định, server sẽ chạy ở cổng 8000.
 
-#### 2. Controllers và Views
+#### 2. Controllers và Views:
 Trả về View trong Route:
 Laravel cho phép trả về một file HTML thông qua view function.
 Thư mục chứa các view: resources/views.
@@ -136,6 +135,58 @@ Laravel tự động ánh xạ biến dữ liệu trong Controller vào View, v�
 Ví dụ thực tế:
 View ```profile.blade.php``` hiển thị tên người dùng được truy vấn từ database.
 Có thể chỉnh sửa View để thêm thẻ HTML như ```<h1>``` để nội dung hiển thị nổi bật hơn.
+
+#### 3. Database Migrations và Eloquent ORM trong Laravel:
+Giới thiệu về Database Migrations và Eloquent ORM:
+Migrations: Dùng để quản lý schema của database, giúp tạo và sửa đổi bảng một cách dễ dàng, có thể được seed dữ liệu mẫu.
+Eloquent ORM: Công cụ của Laravel giúp tương tác với database bằng mô hình hướng đối tượng, thông qua các Model tương ứng với bảng trong database.
+Chi tiết về Migrations:
+Cách tạo Migrations:
+Sử dụng Artisan command:
+bash
+```
+php artisan make:migration create_users_table
+```
+File migration sẽ được lưu trong thư mục database/migrations.
+Cấu trúc file Migration:
+Gồm 2 phương thức:
+up(): Định nghĩa thay đổi schema (tạo bảng, thêm cột,...).
+down(): Định nghĩa cách hủy thay đổi (xóa bảng, xóa cột,...).
+Chạy Migration:
+Sử dụng Artisan command:
+bash
+```
+php artisan migrate
+```
+Chạy tất cả các migration chưa được thực thi.
+Ví dụ: Tạo bảng users với các cột như name, email (unique), email_verified_at (nullable).
+Seeder và Factory:
+Seeder: Dùng để seed dữ liệu mẫu vào database.
+File Seeder được lưu trong thư mục database/seeders.
+Ví dụ:
+php
+```
+php artisan make:seeder UsersTableSeeder
+```
+Factory: Tạo dữ liệu mẫu với các giá trị ngẫu nhiên.
+Ví dụ: Tạo 10 user ngẫu nhiên với Factory.
+php
+Sao chép mã
+User::factory()->count(10)->create();
+Chi tiết về Eloquent ORM:
+Model:
+File Model đại diện cho bảng database, lưu trong thư mục app/Models.
+Ví dụ: Model User đại diện cho bảng users.
+Có thể khai báo các thuộc tính như:
+$fillable: Các cột được phép gán giá trị.
+$hidden: Các cột không hiển thị trong kết quả JSON.
+Eloquent Relationships: Dùng để mô tả quan hệ giữa các bảng (1-1, 1-n, n-n).
+Scopes: Định nghĩa các hàm filter, sort dữ liệu trong Model để tái sử dụng.
+Lưu ý khi sử dụng Migrations và Eloquent:
+Sử dụng tên file migration mô tả rõ chức năng.
+Đặt tên Model và bảng tương tự nhau để dễ quản lý.
+Document rõ ràng các file migration và model.
+Luôn kiểm tra lại trước khi thực thi migration trên môi trường sản xuất.
 
 ### MVC
 
