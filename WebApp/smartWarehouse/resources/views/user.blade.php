@@ -25,18 +25,33 @@
         </style>
     </head>
     <body>
-        <h1>Say hello</h1>
+        <h1>RESTAUREANT</h1>
+
+        <h3>MENU</h3>
+
         <table>
             <tr>
                 <td>Chicken</td>
-                <td>Fish</td>
-                <td>Vegetable</td>
+                <td>100k</td>
             </tr>
             <tr>
+                <td>Fish</td>
                 <td>100k</td>
-                <td>60k</td>
+            </tr>
+            <tr>
+                <td>Vegetables</td>
+                <td>50k</td>
+            </tr>
+            <tr>
+                <td>Milk</td>
                 <td>20k</td>
             </tr>
+            <tr>
+                <td>Tea</td>
+                <td>10k</td>
+            </tr>
         </table>
+
+        
     </body>
     </html>
