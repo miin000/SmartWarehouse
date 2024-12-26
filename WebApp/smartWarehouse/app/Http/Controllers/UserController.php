@@ -23,4 +23,8 @@ class UserController extends Controller
         // Trả về view với dữ liệu user
         return view('user.profile', ['user' => $users[$id]]);
     }
+
+    public function index(){
+        return view('user');
+    }
 }
