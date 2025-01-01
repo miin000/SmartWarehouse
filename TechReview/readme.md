@@ -171,17 +171,19 @@ php artisan make:seeder UsersTableSeeder
 Factory: Tạo dữ liệu mẫu với các giá trị ngẫu nhiên.
 Ví dụ: Tạo 10 user ngẫu nhiên với Factory.
 php
-Sao chép mã
+```
 User::factory()->count(10)->create();
+```
 Chi tiết về Eloquent ORM:
 Model:
 File Model đại diện cho bảng database, lưu trong thư mục app/Models.
-Ví dụ: Model User đại diện cho bảng users.
+Ví dụ: Model ```User``` đại diện cho bảng ```users```.
 Có thể khai báo các thuộc tính như:
-$fillable: Các cột được phép gán giá trị.
-$hidden: Các cột không hiển thị trong kết quả JSON.
+```$fillable```: Các cột được phép gán giá trị.
+```$hidden```: Các cột không hiển thị trong kết quả JSON.
 Eloquent Relationships: Dùng để mô tả quan hệ giữa các bảng (1-1, 1-n, n-n).
 Scopes: Định nghĩa các hàm filter, sort dữ liệu trong Model để tái sử dụng.
+
 Lưu ý khi sử dụng Migrations và Eloquent:
 Sử dụng tên file migration mô tả rõ chức năng.
 Đặt tên Model và bảng tương tự nhau để dễ quản lý.
