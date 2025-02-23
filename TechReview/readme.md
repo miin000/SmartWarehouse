@@ -190,6 +190,22 @@ Sử dụng tên file migration mô tả rõ chức năng.
 Document rõ ràng các file migration và model.
 Luôn kiểm tra lại trước khi thực thi migration trên môi trường sản xuất.
 
+Creating cookies
+After receiving an HTTP request, a server can send one or more Set-Cookie headers with the response. The browser usually stores the cookie and sends it with requests made to the same server inside a Cookie HTTP header. You can specify an expiration date or time period after which the cookie shouldn’t be sent. You can also set additional restrictions to a specific domain and path to limit where the cookie is sent. For details about the header attributes mentioned below, refer to the Set-Cookie reference article.
+The Set-Cookie HTTP response header sends cookies from the server to the user agent. A simple cookie is set like this:
+Set-Cookie: <cookie-name>=<cookie-value>
+This instructs the server sending headers to tell the client to store a pair of cookies:
+HTTP/2.0 200 OK
+Content-Type: text/html
+Set-Cookie: cookie_name=value
+Set-Cookie: second_cookie_name=value2
+[page content]
+
+Then, with every subsequent request to the server, the browser sends all previously stored cookies back to the server using the Cookie header.
+GET /page.html HTTP/2.0
+Host: example.org
+Cookie: cookie_name=value; second_cookie_name=value2
+
 ### MVC
 
 ### MySQL/SQL/postgresSQL/no-sql Database (Firebase, Mongo DB)
