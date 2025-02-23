@@ -397,12 +397,266 @@ optional, this is strictly speaking not a type but has an interesting effect. If
 array, we can check wether the property is an array of say strings, then it would look like this Joi.array().items(Joi.string().valid('a', 'b')
 regex, it supports pattern matching with RegEx as well like so Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/)
 
-### MVC
+Browser libraries security
+Modern web development is not possible without the use of third-party libraries. Many of them are stored on the developer’s CDN. But all this can lead to potential security risks.
+We could setup famous lodash library very simple:
+<script src="https://cdn.jsdelivr.net/npm/lodash/lodash.min.js"></script>
+But this is not a safe way, since we do not control the file on a third-party server. We even do not know exact library version.
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+We could specify the specific version, it is a bit safer. We can also download this file to our project and connect it from the application directory, but this is not always justified.
+But modern browsers have an ability to use CDNs in safe way.
+integrity attribute
+The integrity attribute contains inline metadata that a user agent can use to verify that a fetched resource has been delivered free of unexpected manipulation. You could use the integrity feature by specifying a base64-encoded cryptographic hash of a resource (file) you’re telling the browser to fetch, in the value of the integrity attribute of any <script> or <link> element.
+<script
+  src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"
+  integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k="
+></script>
+If browser detect that loaded content is not matched specified hash - script will not be included. The same will be for css files loaded via <link> tag.
+crossorigin attribute
+Normal script elements pass minimal information to the window.onerror for scripts which do not pass the standard CORS checks. To allow error logging for sites which use a separate domain for static media, use this attribute.
+It could a few possible values but we are interested in crossorigin="anonymous". When it will be specified, request will use CORS headers and credentials flag is set to 'same-origin’. There is no exchange of user credentials via cookies, client-side SSL certificates or HTTP authentication, unless destination is the same origin.
+Whole example for include a script from CDN is:
+<script
+  src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"
+  integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k="
+  crossorigin="anonymous">
+</script>
+
+## NodeJS libraries security
+NodeJs libraries will have the same problem with versions.
+In package.json you will see something like this after adding new package via command npm i --save lodash.
+{
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
+You could see ^ here - it mean, that 4.17.21 will be installed or any newest version.
+What’s wrong with this approach:
+Different developers may have different versions of dependencies;
+We can install an elevated version of a dependency without our will.
+We have not tested new versions of the library for performance and compatibility
+The new version of the library may be compromised or have a vulnerability
+If you specify exact version "lodash": "4.17.21" - it will not fully help to resolve a problem because used library could have dependencies too.
+To avoid this, version 5 of npm introduced the ability to commit dependencies. To do this, in a special package-lock.json file, those packages that need to be installed strictly in the specified versions are listed. This excludes a version update without the knowledge of the developer.
+This file contains information about package location and integrity checksum like integrity attribyte of <script> tag.
+{
+  "name": "name",
+  "lockfileVersion": 2,
+  "requires": true,
+  "packages": {
+    "": {
+      "dependencies": {
+        "lodash": "^4.17.21"
+      }
+    },
+    "node_modules/lodash": {
+      "version": "4.17.21",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
+      "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
+    }
+  },
+  "dependencies": {
+    "lodash": {
+      "version": "4.17.21",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
+      "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
+    }
+  }
+}
+With packages lock you will use specific tested version.
+
+## Rate limiting
+Rate limiting is a technique used to control the amount of incoming or outgoing traffic within a network. It puts a cap on how often someone can repeat an action within a certain timeframe – for instance, trying to log in to an account. Or limit request rates when a user puts tequila on a button.
+Rate limiting is often employed to stop bad bots from negatively impacting a website or application. Bot attacks that involve rate limiting can help mitigate things like:
+Brute force attacks
+DoS and DDoS attacks
+Web scraping
+Rate limiting runs within an application, rather than running on the web server itself. It could be based on several layers:
+Users: the constraint is specific to a user and is implemented using a unique user identifier
+Location: the constraint is based on geography and is implemented based on the location from which the request was made
+IP addresses: the constraint is based on the IP address of the device that initiates a request
+On the application level there are a lot of different libraries that can help with rate limiting which can be based on different limiting algorithms.
+Token bucket: A token bucket maintains a rolling and accumulating budget of usage as a balance of tokens.
+Leaky bucket: A leaky bucket is similar to a token bucket, but the rate is limited by the amount that can drip or leak out of the bucket.
+Fixed window: Fixed-window limits—such as 3,000 requests per hour or 10 requests per day—are easy to state, but they are subject to spikes at the edges of the window, as available quota resets.
+Sliding window: Sliding windows have the benefits of a fixed window, but the rolling window of time smooths out bursts.
+
+## DoS and DDoS
+A denial-of-service (DoS) attack is a type of cyber attack in which a malicious actor aims to render a computer or other device unavailable to its intended users by interrupting the device’s normal functioning. DoS attacks typically function by overwhelming or flooding a targeted machine with requests until normal traffic is unable to be processed, resulting in denial-of-service to addition users. A DoS attack is characterized by using a single computer to launch the attack.
+A distributed denial-of-service (DDoS) attack is a malicious attempt to disrupt the normal traffic of a targeted server, service or network by overwhelming the target or its surrounding infrastructure with a flood of Internet traffic.
+DDoS attacks achieve effectiveness by utilizing multiple compromised computer systems as sources of attack traffic.
+DDOS Attack Classification
+It is useful to group them as Infrastructure layer and Application Layer attacks.
+Infrastructure Layer Attacks
+Attacks at this layer, are typically categorized as Infrastructure layer attacks. These are also the most common type of DDoS attack and include vectors like synchronized floods and other reflection attacks like User Datagram Packet floods. These attacks are usually large in volume and aim to overload the capacity of the network or the application servers. But fortunately, these are also the type of attacks that have clear signatures and are easier to detect.
+Application Layer Attacks
+Attacks at this layer, are often categorized as Application layer attacks. While these attacks are less common, they also tend to be more sophisticated. These attacks are typically small in volume compared to the Infrastructure layer attacks but tend to focus on particular expensive parts of the application thereby making it unavailable for real users. For instance, a flood of HTTP requests to a login page, or an expensive search API, or even Wordpress XML-RPC floods.
+Rate limiting could help from DoS attack in some cases but may be inefficient against DDoS because in most cases in runs on application level and required additional resources. This type of attacks mostly handled via special software - loadbalancers or special services.
+
+DDoS Protection
+Application Layer Attacks Protection
+Modern loadbalancers and rate limiting on application level could prevent this type of attacks.
+Using NGINX and NGINX Plus to Fight DDoS Attacks
+Limiting the Rate of Requests
+You can limit the rate at which NGINX and NGINX Plus accept incoming requests to a value typical for real users.
+limit_req_zone $binary_remote_addr zone=one:10m rate=30r/m;
+
+server {
+    # ...
+    location /login.html {
+        limit_req zone=one;
+    # ...
+    }
+}
+The limit_req_zone directive configures a shared memory zone called one to store the state of requests for the specified key, in this case the client IP address ($binary_remote_addr). The limit_req directive in the location block for /login.html references the shared memory zone.
+Limiting the Number of Connections
+You can limit the number of connections that can be opened by a single client IP address, again to a value appropriate for real users. For example, you can allow each client IP address to open no more than 10 connections to the /store area of your website:
+limit_conn_zone $binary_remote_addr zone=addr:10m;
+
+server {
+    # ...
+    location /store/ {
+        limit_conn addr 10;
+        # ...
+    }
+}
+The limit_conn_zone directive configures a shared memory zone called addr to store requests for the specified key, in this case (as in the previous example) the client IP address, $binary_remote_addr. The limit_conn directive in the location block for /store references the shared memory zone and sets a maximum of 10 connections from each client IP address.
+Read whole documentation article.
+Using haproxy
+Other popular loadbalancer - haproxy - have the same abilities to protect applications on this level.
+Read whole documentation article
+Infrastructure Layer Attacks
+It is more complicated type of attack and prevention is required specific knowledges about OS and network administration. But where is a lot of services which provide this kind of protection, like Cloudflare.
+It offers protection on different layers:
+Website DDoS Protection - Web Services (L7): unmetered and free in all Cloudflare website application service plans.
+Application DDoS Protection - Spectrum (L4): reverse proxy, pay-as-you-go service for all TCP/UDP applications (gaming, VOIP, etc.).
+Network DDoS Protection - Magic Transit (L3): for on-premise, cloud, & hybrid networks. Combine DDoS protection, traffic acceleration, & more.
+
+### Password and Authentication
+
+## Passwords storing
+Password authentication looks simple at first - we store a pair of login and password data in the database and check for their equality when a user enters this information. However, security of the application will largely depend on how we saved the password.
+The worst scenario occurs when the password is stored as it is - in plain text. If the storage location of such passwords is compromised (this can happen due to a huge number of reasons such as from human error or a bug in a third-party software) - the attacker doesn’t even have to do anything - he will immediately receive ready-made user passwords and can try to use them in various attacks. If the user used the same login and password combinations in financial or other applications, those accounts will be compromised as well.
+IMPORTANT
+You should never store passwords in plain text format.
+The better thing that can be used to store passwords is its encrypted version. But this is not much safer than a plain text password - the encryption key can also be compromised and an attacker can decrypt them to their original form.
+Hashing
+A more secure way to store a password is to transform it into data that cannot be converted back to the original password. This mechanism is known as hashing.
+Hashes are impossible to convert back into plain text, but you don’t need to convert them back in order to break them. Once you know that a certain string converts to a certain hash, you know that any instance of that hash represents that string.
+Hashing a password is good because it is quick and it is easy to store. Instead of storing the user’s password as plain text, which is open for anyone to read, it is stored as a hash which is impossible for a human to read.
+Unfortunately, hashing a password is not nearly enough. It does not take very much computational power to generate a table of hashes consisting of letters, numbers, and symbols. Once you have this table, you can then compare a hash to it to see if it matches anything. Keep repeating this process and you might be able to crack the password.
+Salting
+Hashing user passwords alone is not a good practice. Therefore, you need “something else” to mix with the password before you perform hashing. This “something else” is called a **"salt".
+In cryptography, a salt is random data that is used as an additional input to a one-way function that hashes data such as a password or passphrase.
+Example of salting:
+pa$$w0rd     => SHA256 => 4b358ed84b7940619235a22328c584c7bc4508d4524e75231d6f450521d16a17
+pa$$w0rdsalt => SHA256 => 377583559c70a5ed513d1d3b2ce9d1f8474d48f05caaca76288a4df48d35ddb9
+After hashing with a salt, it is almost impossible for an attacker to crack the password using a rainbow table attack (a password hacking technique), since they must be created anew for each case. It might actually be easier for an attacker to try to crack each password by brute force versus trying to use the rainbow technique, that’s how much stronger salting does for passwords.
+However, here lies another problem - just salting the password is not enough. If brute force can be used to crack a password, other techniques need to be implemented to make it harder or longer to crack the password.
+No Need for Speed
+Common hashing algorithms are not quite suitable here because they are too fast. A cryptographic hash function used for password hashing needs to be slow computational process because a rapidly computed algorithm could make brute-force attacks more easily successful, especially with the rapidly evolving power of modern hardware. One strategy of getting the hash calculation to compute slowly is to use a lot of internal iterations or by making the calculation memory intensive. A slow cryptographic hash function hampers that process but doesn’t bring it to a halt since the speed of the hash computation affects both well-intended and malicious users. It’s important to achieve a good balance of speed and usability for hashing functions.
+
+## Password Hashing Algorithms
+There are a number of modern hashing algorithms that have been specifically designed for securely storing passwords. This means that they should be slow (unlike algorithms such as MD5 and SHA-1, which were designed to be fast), and how slow they are can be configured by changing the work factor.
+Argon2id
+Argon2 is the winner of the 2015 Password Hashing Competition. There are three different versions of the algorithm, and the Argon2id variant should be used, as it provides a balanced approach to resisting both side-channel and GPU-based attacks.
+Rather than a simple work factor like other algorithms, Argon2id has three different parameters that can be configured. Argon2id should use one of the following configuration settings as a base minimum which includes the minimum memory size (m), the minimum number of iterations (t) and the degree of parallelism (p).
+m=37 MiB, t=1, p=1
+m=15 MiB, t=2, p=1
+Both of these configuration settings are equivalent in the defense they provide. The only difference is a trade off between CPU and RAM usage.
+scrypt
+scrypt is a password-based key derivation function created by Colin Percival. While new systems should consider Argon2id for password hashing, scrypt should be configured properly when used in legacy systems.
+Like Argon2id, scrypt has three different parameters that can be configured. scrypt should use one of the following configuration settings as a base minimum which includes the minimum CPU/memory cost parameter (N), the blocksize (r) and the degree of parallelism (p).
+N=2^16 (64 MiB), r=8 (1024 bytes), p=1
+N=2^15 (32 MiB), r=8 (1024 bytes), p=2
+N=2^14 (16 MiB), r=8 (1024 bytes), p=4
+N=2^13 (8 MiB), r=8 (1024 bytes), p=8
+N=2^12 (4 MiB), r=8 (1024 bytes), p=15
+These configuration settings are equivalent in the defense they provide. The only difference is a trade off between CPU and RAM usage.
+bcrypt
+The bcrypt password hashing function should be the second choice for password storage if Argon2id is not available or PBKDF2 is required to achieve FIPS-140 compliance.
+The work factor should be as large as verification server performance will allow, with a minimum of 10.
+bcrypt has a maximum length input length of 72 bytes for most implementations. To protect against this issue, a maximum password length of 72 bytes (or less if the implementation in use has smaller limits) should be enforced when using bcrypt.
+
+## Password Security
+A key concern when using passwords for authentication is password strength. A “strong” password policy makes it difficult or even improbable for one to guess the password through either manual or automated means. The following characteristics define a strong password.
+Password Length
+Minimum password length - Current recommendation - passwords less then 8 characters are weak. A application must prohibit the use of such passwords.
+Maximum password length should not be set too low, as it will prevent users from creating passphrases. A common maximum length is 64 characters due to limitations in certain hashing algorithms, it could be extended to 128 characters. But passwords more then 128 characters should be denied to prevent DoS.
+Do not silently truncate passwords, they are should be denied and user should select proper password.
+Password Characters
+Allow usage of all characters including unicode and whitespace. There should be no password composition rules limiting the type of characters permitted. It even including language neutral characters such as spaces and Emojis.
+Verify that “paste” functionality, browser password helpers, and external password managers are permitted.
+Visualize and check against leaks
+Applcation should include password strength meter to help users create a more complex password. zxcvbn library could be used here.
+It allow to check:
+estimate strength of a password
+get a score for the password
+extend existing dictionaries with your own
+Pwned Passwords service could be used to check if password is not secure.
+Additional security checks
+Verify users can change their password. It means you should check if user permitted to do it: ask confirmation of old password, verify or notify via email.
+Ensure credential rotation when a password leak occurs, or at the time of compromise identification.
+
+### OAUTH
+
+## OAuth 2.0
+OAuth 2.0(Open Authorization) is a standard designed to allow a website or application to access resources hosted by other web applications on behalf of a user.
+OAuth 2.0 is an authorization protocol and not an authentication protocol. It works by delegating user authentication to the service that hosts a user account and authorizing third-party applications to access that user account. OAuth 2 provides authorization flows for web and desktop applications, as well as mobile devices.
+OAuth Roles
+Resource Owner: The user or system that owns the protected resources and can grant access to them.
+Client: The client is the application that wants to access the user’s account.
+Authorization Server: This server receives requests from the Client for Access Tokens and issues them upon successful authentication and consent by the Resource Owner. The authorization server exposes two endpoints: the Authorization endpoint, which handles the interactive authentication and consent of the user, and the Token endpoint, which is involved in a machine to machine interaction.
+Resource Server: The resource server hosts the protected user accounts.
+OAuth Scopes
+Scope is a mechanism in OAuth 2.0 to limit an application’s access to a user’s account. A application can request a specific set of scopes and this information will be shown on the consent screen and the access token issued to the application will be limited to the scopes granted.
+Abstract Protocol Flow
+.guides/img/abstract_flow
+Common OAuth flow works as described on the diagram:
+The client(application) ask for authorization to access resources from the resource owner.
+If the user pproved the request - the application got an authorization grant.
+The client requests an access token from the authorization server by authorization grant and client secret.
+If application request is verified - it will receive the access token from the authorization server
+With obtained access token application could request the resources from API.
+If the access token is valid the resource server returns data to the client.
+Application configuration
+To implement OAuth flow you need to register application to obtain information for application configuration. In most services it is done by developer registration form in the next page we will do it for google api. For most cases you will need to pass:
+Application website
+Application Name
+Application Callback URL
+After registration you will receive client credentials: client identifier and client secret.
+OAuth Grant Types
+OAuth could works in different environments: web application, mobile devices, smart devices etc. To provide it OAuth 2.0 offers different types of grant types.
+Most used types is:
+Authorization Code: used with server-side Applications
+Client Credentials: used with Applications that have API access
+Device Code: used for devices that lack browsers or have input limitations
+
+## OAuth 2.0 with Google API
+Google APIs use the OAuth 2.0 protocol for authentication and authorization. Google supports common OAuth 2.0 scenarios such as those for web server, client-side, installed, and limited-input device applications.
+As first step you need to get client credentials from Google API Console.
+As first step you need to create an application. Project name could be something like My OAuth Application.
+After project is created, you need to configure consent screen. Go to OAuth consent screen tab and select External checkbox. On the app registration screen you need to enter application name again, user email and add authorized domain(it should be codio.io) and developer contain information. Click save and continue button.
+After consent screen configuration you need to create client credentials - go to Credentials tab and click CREATE CREDENTIALS button. In the dropdown list select OAuth client ID.
+In the creation from select Application type: Web application and enter application name again.
+By clicking buttons below you could obtain information about Authorized JavaScript origins and Authorized redirect URIs.
+Show Authorized JavaScript origins
+
+Show Authorized redirect URIss
+After filling in form click “CREATE” button. Popup window will show OAuth client information: you need to store it - we will use it soon.
+
+## OpenID Connect
+OAuth vs. OpenID Connect
+OAuth 2 is not an authentication protocol. Instead, it is an authorization protocol, allowing an application to ask a user if it can access an API on their behalf. It is a delegation protocol. But it is possible to build user authentication over OAuth 2. It could be done in two ways: custom request for fetch user information from api(email/name/etc) or by using standart: OpenID Connect.
+OpenID Connect: OAuth + Identity
+OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 framework. It allows third-party applications to verify the identity of the end-user and to obtain basic user profile information. OIDC uses JSON web tokens (JWTs), which you can obtain using flows conforming to the OAuth 2.0 specifications.
+OpenID Connect in google apps
+In the response from OAuth 2.0 flow you could see id_token fields - it is information about user identity - because we used scope openid and it support OpenID Connect specification.
+An ID Token is a JWT (JSON Web Token), that is, a cryptographically signed Base64-encoded JSON object. We could decode it and verify by additional nodejs packages - jsonwebtoken and jwks-rsa.
+Fetch user information in custom way
+You also could fetch information about user from google api by using access token. You just need to send get request to https://openidconnect.googleapis.com/v1/userinfo url with Authorization: Bearer TOKEN header. You could check current api uris by using link: https://accounts.google.com/.well-known/openid-configuration
 
 ### MySQL/SQL/postgresSQL/no-sql Database (Firebase, Mongo DB)
-
-### Programming Language
-
 
 
 ## PHP (OOP)
