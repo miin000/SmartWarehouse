@@ -367,6 +367,36 @@ email.addEventListener("input", (event) => {
 });
 When working with frameworks like React, Angular, or Vue, it is advisable to research validation libraries tailored for the specific framework. These libraries can provide efficient and seamless validation, allowing you to maintain a consistent user experience and ensure accurate data collection.
 
+Server-side validation
+Data validation on server side is specific to programing language.
+For example, for NodeJS Joi library is very popular.
+It allow to describe data which you desire and check input data if it fits into requirements.
+The first thing we do is import it and then we set up some rules, like so:
+const Joi = require('joi')
+
+const schema = Joi.object().keys({ 
+  name: Joi.string().alphanum().min(3).max(30).required(),
+  year: Joi.number().integer().min(1970).max(2023), 
+}); 
+
+const dataToValidate = { 
+  name 'chris', 
+  birthyear: 1971 
+} 
+
+const result = Joi.validate(dataToValidate, schema)
+What we are looking at above is us doing the following:
+constructing a schema, our call to Joi.object(),
+validating our data, our call to Joi.validate() with dataToValidate and schema as input parameters
+Joi supports all sorts of primitives as well as Regex and can be nested to any depth.
+string, this says it needs to be of type string, and we use it like so Joi.string()
+number, Joi.number() and also supporting helper operations such as min() and max(), like so Joi.number().min(1).max(10)
+required, we can say whether a property is required with the help of the method required, like so Joi.string().required()
+any, this means it could be any type, usually we tend to use it with the helper allow() that specifies what it can contain, like so, Joi.any().allow('a')
+optional, this is strictly speaking not a type but has an interesting effect. If you specify for example prop : Joi.string().optional. If we don’t provide prop then everybody’s happy.
+array, we can check wether the property is an array of say strings, then it would look like this Joi.array().items(Joi.string().valid('a', 'b')
+regex, it supports pattern matching with RegEx as well like so Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/)
+
 ### MVC
 
 ### MySQL/SQL/postgresSQL/no-sql Database (Firebase, Mongo DB)
