@@ -206,6 +206,18 @@ GET /page.html HTTP/2.0
 Host: example.org
 Cookie: cookie_name=value; second_cookie_name=value2
 
+Cookies Security: Secure
+The Secure cookie attribute instructs web browsers to only send the cookie through an encrypted HTTPS (SSL/TLS) connection. This session protection mechanism is mandatory to prevent the disclosure of the session ID through MitM (Man-in-the-Middle) attacks. It ensures that an attacker cannot simply capture the session ID from web browser traffic.
+Forcing the web application to only use HTTPS for its communication (even when port TCP/80, HTTP, is closed in the web application host) does not protect against session ID disclosure if the Secure cookie has not been set - the web browser can be deceived to disclose the session ID over an unencrypted HTTP connection. The attacker can intercept and manipulate the victim user traffic and inject an HTTP unencrypted reference to the web application that will force the web browser to submit the session ID in the clear.
+The Secure attribute is meant to protect against man-in-the-middle (MITM) attacks. However, it protects only the confidentiality of the cookie, not its integrity. In a MITM attack, an attacker located between the browser and the server will not receive the cookie from the server via an unencrypted connection but can still send a forged cookie to the server in plain text.
+HTTP/2.0 200 OK
+Content-Type: text/html
+Set-Cookie: cookie_name=value; Secure
+
+
+[page content]
+
+
 ### MVC
 
 ### MySQL/SQL/postgresSQL/no-sql Database (Firebase, Mongo DB)
