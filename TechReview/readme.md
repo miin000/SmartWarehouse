@@ -312,6 +312,61 @@ Havij was developed by an Iranian security company. It provides a graphical user
 [page content]
 
 
+Client-side Validation
+Before submitting data to a server, it is crucial to verify that all required form controls are filled out and formatted correctly. This process is known as client-side form validation and helps to ensure that submitted data aligns with the requirements specified in the various form controls. This article will guide you through the fundamental concepts and examples of client-side form validation.
+Client-side validation serves as an initial check and is an essential aspect of a positive user experience. By catching invalid data on the client-side, users can promptly rectify any issues. If the server rejects the data, a noticeable delay occurs due to the round trip to the server and back to the client-side to inform the user of the necessary corrections.
+What is Form Validation?
+Visit any popular site with a registration form, and you will notice that they provide feedback when your data doesn’t meet the expected format. You will encounter messages like:
+“This field is required” (You can’t leave this field blank).
+“Please enter your phone number in the format xxx-xxxx” (A specific data format is required for it to be considered valid).
+“Please enter a valid email address” (the data you entered is not in the right format).
+“Your password needs to be between 8 and 30 characters long and contain one uppercase letter, one symbol, and a number” (A very specific data format is required for your data).
+Form validation refers to the process wherein the browser and/or the web server checks that the entered data adheres to the correct format and complies with the constraints set by the application. Validation performed in the browser is known as client-side validation, while validation carried out on the server is referred to as server-side validation.
+Different Types of Client-Side Validation
+You will come across two primary types of client-side validation on the web:
+Built-in form validation utilizes HTML form validation features, which have been discussed throughout various sections of this module. This type of validation typically requires minimal JavaScript and offers better performance than JavaScript validation. However, it is not as customizable as JavaScript validation.
+JavaScript validation is developed using JavaScript code. This type of validation is fully customizable, but you need to create it from scratch or use a library.
+Using Built-In Form Validation
+One of the most notable features of modern form controls is their ability to validate most user data without relying on JavaScript. This is achieved by employing validation attributes on form elements, such as:
+required: Specifies whether a form field needs to be completed before the form can be submitted.
+minlength and maxlength: Specifies the minimum and maximum length of textual data (strings).
+min and max: Specifies the minimum and maximum values of numerical input types.
+type: Specifies the required data type, such as a number, an email address, or another specific preset type.
+pattern: Specifies a regular expression that defines a pattern the entered data must adhere to.
+Here is an example:
+<form>
+  <div>
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" required/>
+  </div>
+  <div>
+    <label for="age">Age</label>
+    <input id="age" name="age" type="number" required/>
+  </div>
+  <button>Submit</button>
+</form>
+Validating Forms Using JavaScript
+To gain more control over the appearance and behavior of native error messages, you must employ JavaScript.
+The Constraint Validation API provides the following properties on the above elements:
+validationMessage: Returns a localized message describing the validation constraints that the control does not satisfy (if any). If the control is not a candidate for constraint validation (willValidate is false) or the element’s value meets its constraints (is valid), this property returns an empty string.
+validity: Returns a ValidityState object containing various properties that describe the element’s validity state.
+willValidate: Returns true if the element will be validated when the form is submitted; false otherwise.
+The Constraint Validation API also makes the following methods available on the above elements and the form element:
+checkValidity(): Returns true if the element’s value has no validity problems, false if otherwise. If the element is invalid, this method also fires an invalid event on the element.
+reportValidity(): Reports invalid field(s) using events. This method is useful in combination with preventDefault() in an onSubmit event handler.
+setCustomValidity(message): Adds a custom error message to the element; if you set a custom error message, the element is considered to be invalid, and the specified error is displayed. This allows you to use JavaScript code to establish a validation failure other than those offered by the standard HTML validation constraints.
+Here is an example:
+const email = document.getElementById("mail");
+email.addEventListener("input", (event) => {
+  if (email.validity.typeMismatch) {
+    email.setCustomValidity("I am expecting an email address!");
+    email.reportValidity();
+  } else {
+    email.setCustomValidity("");
+  }
+});
+When working with frameworks like React, Angular, or Vue, it is advisable to research validation libraries tailored for the specific framework. These libraries can provide efficient and seamless validation, allowing you to maintain a consistent user experience and ensure accurate data collection.
+
 ### MVC
 
 ### MySQL/SQL/postgresSQL/no-sql Database (Firebase, Mongo DB)
