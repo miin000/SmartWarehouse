@@ -221,6 +221,91 @@ HTTP/2.0 200 OK
 Content-Type: text/html
 Set-Cookie: cookie_name=value; HttpOnly
 
+Cookies Security: SameSite
+SameSite defines a cookie attribute preventing browsers from sending a SameSite flagged cookie with cross-site requests. The main goal is to mitigate the risk of cross-origin information leakage, and to provide some protection against cross-site request forgery attacks.
+The SameSite cookie attribute may have one of the following values:
+SameSite=Strict: The cookie is only sent if you are currently on the site that the cookie is set for. If you are on a different site and click a link to the site that the cookie is set for, the cookie is not sent with the first request.
+SameSite=Lax: The cookie is not sent for embedded content, but it is sent if you trigger top-level navigation, e.g. by clicking on a link to the site that the cookie is set for. It is sent only with safe request types that do not change state, such as GET.
+SameSite=None: The cookie is sent even for embedded content.
+Note that you can expect different browser behaviors when the SameSite attribute is not set.
+HTTP/2.0 200 OK
+Content-Type: text/html
+Set-Cookie: cookie_name=value; SameSite=Strict
+
+Cookies Security: Expire and Max-Age
+Session management mechanisms based on cookies can make use of two types of cookies, non-persistent (or session) cookies, and persistent cookies. If a cookie presents the Max-Age (that has preference over Expires) or Expires attributes, it will be considered a persistent cookie and will be stored on a device’s disk by the web browser until the expiration time.
+Typically, session management capabilities to track users after authentication make use of non-persistent cookies. This forces the session to disappear from the client if the current web browser instance is closed. Therefore, it is highly recommended to use non-persistent cookies for session management purposes, so that the session ID does not remain on the web client cache for long periods of time, where an attacker can obtain it. Other recommendations include:
+Ensure that sensitive information is not compromised by checking that a cookie is not persistent, encrypting it, and storing it only for the duration of the user’s need
+Ensure that unauthorized activities cannot take place via cookie manipulation
+Ensure that the Secure flag is set to prevent accidental transmission over the web in a non-secure manner
+Determine if all state transitions in the application code properly check for cookies and enforce their use
+Ensure entire cookie is encrypted if sensitive data is persisted in the cookie
+Define all cookies being used by the application, their name, and why they are needed
+HTTP/2.0 200 OK
+Content-Type: text/html
+Set-Cookie: cookie_name=value; Expires=Thu, 31 Oct 2021 07:28:00 GMT
+
+SQL Injection Prevention
+SQL Injection flaws are introduced when software developers create dynamic database queries constructed with string concatenation which includes user supplied input. Avoiding SQL injection flaws can be simple. For example, developers can either:
+stop writing dynamic queries with string concatenation; and/or
+prevent user supplied input which contains malicious SQL from affecting the logic of the executed query.
+Other primary and additional defenses include:
+Primary Defenses:
+Option 1: Use of Prepared Statements (with Parameterized Queries)
+Option 2: Use of Properly Constructed Stored Procedures
+Option 3: Allow-list Input Validation
+Option 4: Escape All User Supplied Input
+Additional Defenses:
+Option 5: Enforce Least Privilege
+Option 6: Perform Allow-list Input Validation as a Secondary Defense
+Unsafe Example:
+SQL injection flaws typically look like this (example from a previous page):
+conn.query('SELECT * FROM cats where age <= ' + age, (error, results, fields) => {})
+The following (NodJS) example is UNSAFE, and would allow an attacker to inject code into the query that would be executed by the database. The unvalidated “age” parameter that is simply appended to the query allows an attacker to inject any SQL code they want. Unfortunately, this method for accessing databases is all too common.
+Defense Option 1: Prepared Statements (with Parameterized Queries)
+The use of prepared statements with variable binding (aka parameterized queries) is how all developers should first be taught how to write database queries. They are simple to write, and easier to understand than dynamic queries. Parameterized queries force the developer to first define all the SQL code, and then pass in each parameter to the query later. This coding style allows the database to distinguish between code and data, regardless of what user input is supplied.
+Prepared statements ensure that an attacker is not able to change the intent of a query, even if SQL commands are inserted by an attacker. In the safe example below, if an attacker were to enter the age of tom' or '1'='1, the parameterized query would not be vulnerable and would instead look for a age which literally matched the entire string tom' or '1'='1.
+Safe example for previous query will be:
+conn.query('SELECT * FROM cats where age <= ?', [age], (error, results, fields) => {})
+Library will be escape age variable and put it as the entire string and it will prevent the attack.
+Defense Option 2: Stored Procedures
+Stored procedures are not always safe from SQL injection. However, certain standard stored procedure programming constructs have the same effect as the use of parameterized queries when implemented safely which is the norm for most stored procedure languages.
+‘Implemented safely’ means the stored procedure does not include any unsafe dynamic SQL generation. Developers do not usually generate dynamic SQL inside stored procedures. However, it can be done, but should be avoided.
+Defense Option 3: Allow-list Input Validation
+Various parts of SQL queries aren’t legal locations for the use of bind variables, such as the names of tables or columns, and the sort order indicator (ASC or DESC). In such situations, input validation or query redesign is the most appropriate defense. For the names of tables or columns, ideally those values come from the code, and not from user parameters.
+For something simple like a sort order, it would be best if the user supplied input is converted to a boolean, and then that boolean is used to select the safe value to append to the query. This is a very standard need in dynamic query creation.
+const query = "some SQL ... order by Salary " + (sortOrder ? "ASC" : "DESC");
+Any time user input can be converted to a non-String, like a date, numeric, boolean, enumerated type, etc. before it is appended to a query, or used to select a value to append to the query, this ensures it is safe to do so
+Defense Option 4: Escaping All User-Supplied Input
+This technique should only be used as a last resort, when none of the above are feasible. Input validation is probably a better choice as this methodology is frail compared to other defenses and we cannot guarantee it will prevent all SQL Injection in all situations.
+Additional Defenses (Option 5): Least Privilege
+To minimize the potential damage of a successful SQL injection attack, you should minimize the privileges assigned to every database account in your environment. Do not assign DBA or admin type access rights to your application accounts. We understand that this is easy, and everything just ‘works’ when you do it this way, but it is very dangerous.
+The designer of web applications should not only avoid using the same owner/admin account in the web applications to connect to the database. Different DB users could be used for different web applications.
+Additional Defenses (Option 6): Allow-list Input Validation
+In addition to being a primary defense when nothing else is possible (e.g., when a bind variable isn’t legal), input validation can also be a secondary defense used to detect unauthorized input before it is passed to the SQL query.
+
+How to detect SQL injection
+SQL Injection detection can depend on whether or not you have access to the specific code in question.
+If you have access - you need to do a code audit and check if SQL Injection prevention techniques have been performed on the code.
+If you do not have access - it can be detected manually by using a systematic set of tests against every entry point in the application.
+Possible points to check:
+Submitting the single quote character ' and looking for errors or other anomalies.
+Submitting some SQL-specific syntax that evaluates to the base (original) value of the entry point, and to a different value, and then looking for systematic differences in the resulting application responses.
+Submitting Boolean conditions such as OR 1=1 and OR 1=2, and looking for differences in the application’s responses.
+Submitting payloads designed to trigger time delays when executed within an SQL query, and looking for differences in the time taken to respond.
+Submitting OAST payloads designed to trigger an out-of-band network interaction when executed within an SQL query, and monitoring for any resulting interactions.
+There are also a few free SQL Injection scanners that are available such as:
+SQLMap
+SQLMap is an automatic SQLi and database takeover tool available on GitHub. This open-source penetration testing tool automates the process of detecting and exploiting SQLi flaws or other attacks that take over database servers.
+jSQL Injection
+jSQL Injection is a Java-based tool that helps IT teams find database information from distant servers.
+Havij
+Havij was developed by an Iranian security company. It provides a graphical user interface (GUI) and is an automated SQLi tool, supporting several SQLi techniques. It has particular value in supporting penetration testers in finding vulnerabilities on web pages.
+
+[page content]
+
+
+[page content]
 
 [page content]
 
