@@ -214,6 +214,15 @@ HTTP/2.0 200 OK
 Content-Type: text/html
 Set-Cookie: cookie_name=value; Secure
 
+Cookies Security: HttpOnly
+The HttpOnly cookie attribute instructs web browsers not to allow scripts (e.g. JavaScript or VBscript) an ability to access the cookies via the DOM document.cookie object. This session ID protection is mandatory to prevent session ID stealing through XSS attacks. However, if an XSS attack is combined with a CSRF attack, the requests sent to the web application will include the session cookie, as the browser always includes the cookies when sending requests. The HttpOnly cookie only protects the confidentiality of the cookie; the attacker cannot use it offline, outside of the context of an XSS attack.
+While the HttpOnly attribute protects the confidentiality of sensitive cookies, it does not protect them from being overwritten. This is because a browser can only store a limited number of cookies for a domain. An attacker may use the cookie jar overflow attack to set a large number of cookies for a domain, deleting the original HttpOnly cookie from browser memory and allowing the attacker to set the same cookie without the flag.
+HTTP/2.0 200 OK
+Content-Type: text/html
+Set-Cookie: cookie_name=value; HttpOnly
+
+
+[page content]
 
 [page content]
 
